@@ -1,0 +1,152 @@
+<html>
+<head>
+  <title>socialviewr alpha</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
+  <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Lobster' rel='stylesheet' type='text/css'>
+  <link rel="import" href="bower_components/core-scroll-header-panel/core-scroll-header-panel.html">
+  <link rel="import" href="bower_components/core-toolbar/core-toolbar.html">
+  <link rel="import" href="bower_components/core-icon-button/core-icon-button.html">
+  <link rel="import" href="bower_components/core-pages/core-pages.html">
+  <link rel="import" href="bower_components/core-field/core-field.html">
+  <link rel="import" href="bower_components/paper-tabs/paper-tabs.html">
+  <link rel="import" href="bower_components/core-ajax/core-ajax.html">
+  <link rel="import" href="scv_components/news-item.html">
+
+  <style shim-shadowdom>
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Lato', sans-serif;
+      color: #333;
+    }
+
+    core-scroll-header-panel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: #eee;
+    }
+
+    /* background for toolbar when it is at its full size */
+    core-scroll-header-panel::shadow #headerBg {
+      background-image: url(sources/images/bg5.jpg);
+    }
+
+    /* background for toolbar when it is condensed */
+    core-scroll-header-panel::shadow #condensedHeaderBg {
+      background-color: #f4b400;
+    }
+
+    core-toolbar {
+      color: #fff;
+      fill: #f1f1f1;
+      background-color: transparent;
+    }
+
+    core-field {
+      color: #f4b400;
+      fill: #f4b400;
+      background-color: #f1f1f1;
+    }
+
+    .title {
+      -webkit-transform-origin: 0;
+      font-family: 'Lobster', cursive;
+      transform-origin: 0;
+      font-size: 60px;
+    }
+
+    .content {
+      padding: 8px;
+    }
+
+  </style>
+
+</head>
+<body unresolved>
+
+  <core-scroll-header-panel condenses keepCondensedHeader condensedHeaderHeight="100">
+
+    <core-toolbar class="tall">
+    <div flex></div>
+      <core-field>
+        <core-icon icon="search"></core-icon>
+         <input placeholder="search for topic" flex>
+      </core-field>
+      <core-ajax auto url="//gdata.youtube.com/feeds/api/videos/"
+      params='{"alt":"json", "q":"paleo"}'
+      handleAs="json">
+      </core-ajax>
+
+
+      <core-icon-button icon="more-vert"></core-icon-button>
+      <div class="bottom indent title">Socialviewr</div>
+      <div class="bottom" flex=""></div>
+      <paper-tabs selected="0" class="bottom" self-end="" style="width: 300px;" role="tablist" horizontal="" center="" layout="">
+
+        <paper-tab role="tab" inline="" flex="" center-center="" horizontal="" layout="" class="core-selected" active="">TOP 3</paper-tab>
+        <paper-tab role="tab" inline="" flex="" center-center="" horizontal="" layout="">OTHERS</paper-tab>
+        <paper-tab role="tab" inline="" flex="" center-center="" horizontal="" layout="">CATEGORIZE</paper-tab>
+      </paper-tabs>
+
+
+    </core-toolbar>
+
+    <div class="content">
+
+      <core-pages selected="0">
+        <div>
+	       <template repeat="{{response.feed.entry}}">
+	         <news-item username="{{title.$t}}" text="{{content.$t}}" status="online" timestamp="1420145273945"></news-item>
+          </template>
+        </div>
+        <div>Page 2</div>
+        <div>Page 3</div>
+      </core-pages>
+
+    </div>
+
+  </core-scroll-header-panel>
+
+  <script>
+
+    // custom transformation: scale header's title
+    var titleStyle = document.querySelector('.title').style;
+    addEventListener('core-header-transform', function(e) {
+      var d = e.detail;
+      var m = d.height - d.condensedHeight;
+      var scale = Math.max(0.75, (m - d.y) / (m / 0.25)  + 0.75);
+      titleStyle.transform = titleStyle.webkitTransform =
+          'scale(' + scale + ') translateZ(0)';
+    });
+
+    var tabs = document.querySelector('paper-tabs');
+    var pages = document.querySelector('core-pages');
+
+    tabs.addEventListener('core-select',function(){
+       pages.selected = tabs.selected;
+    });
+
+      var ajax = document.querySelector("core-ajax");
+      ajax.addEventListener("core-response",
+        function(e) {
+          document.querySelector('template').model = {
+            response: e.detail.response
+          };
+    });
+  </script>
+
+</body>
+</html>
